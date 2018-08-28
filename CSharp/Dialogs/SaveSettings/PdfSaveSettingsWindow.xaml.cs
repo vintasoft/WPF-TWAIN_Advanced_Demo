@@ -1,7 +1,5 @@
-﻿using System.Windows;
-using System.Windows.Input;
-using System.Windows.Controls;
-using Vintasoft.WpfTwain;
+﻿using System;
+using System.Windows;
 using Vintasoft.WpfTwain.ImageEncoders;
 
 namespace WpfTwainAdvancedDemo
@@ -11,54 +9,6 @@ namespace WpfTwainAdvancedDemo
     /// </summary>
     public partial class PdfSaveSettingsWindow : Window
     {
-
-        #region Fields & properties
-
-        bool _saveAllImages = false;
-        public bool SaveAllImages
-        {
-            get { return _saveAllImages; }
-        }
-        
-        bool _multiPage = true;
-        public bool MultiPage
-        {
-            get { return _multiPage; }
-        }
-
-        bool _pdfACompatible = true;
-        public bool PdfACompatible
-        {
-            get { return _pdfACompatible; }
-        }
-
-        string _pdfAuthor = string.Empty;
-        public string PdfAuthor
-        {
-            get { return _pdfAuthor; }
-        }
-
-        string _pdfTitle = string.Empty;
-        public string PdfTitle
-        {
-            get { return _pdfTitle; }
-        }
-
-        PdfImageCompression _compression = PdfImageCompression.Auto;
-        public PdfImageCompression Compression
-        {
-            get { return _compression; }
-        }
-
-        int _jpegQuality = 90;
-        public int JpegQuality
-        {
-            get { return _jpegQuality; }
-        }
-
-        #endregion
-
-
 
         #region Constructor
 
@@ -79,34 +29,59 @@ namespace WpfTwainAdvancedDemo
 
 
 
+        #region Properties
+
+        bool _saveAllImages = false;
+        public bool SaveAllImages
+        {
+            get { return _saveAllImages; }
+        }
+
+        TwainPdfEncoderSettings _encoderSettings = new TwainPdfEncoderSettings();
+        public TwainPdfEncoderSettings EncoderSettings
+        {
+            get { return _encoderSettings; }
+        }
+
+        #endregion
+
+        
+        
         #region Methods
 
         private void bOk_Click(object sender, RoutedEventArgs e)
         {
             _saveAllImages = (bool)rbSaveAllImages.IsChecked;
 
-            _multiPage = (bool)rbAddToDocument.IsChecked;
-            _pdfACompatible = (bool)chkPdfACompatible.IsChecked;
-            _pdfAuthor = txtPdfAuthor.Text;
-            _pdfTitle = txtPdfTitle.Text;
-
-            if ((bool)rbComprNone.IsChecked)
-                _compression = PdfImageCompression.None;
-            else if ((bool)rbComprCCITT.IsChecked)
-                _compression = PdfImageCompression.CcittFax;
-            else if ((bool)rbComprLzw.IsChecked)
-                _compression = PdfImageCompression.LZW;
-            else if ((bool)rbComprJpeg.IsChecked)
+            try
             {
-                _compression = PdfImageCompression.JPEG;
-                _jpegQuality = jpegQualityNumericUpDown.Value;
-            }
-            else if ((bool)rbComprZip.IsChecked)
-                _compression = PdfImageCompression.ZIP;
-            else if ((bool)rbComprAuto.IsChecked)
-                _compression = PdfImageCompression.Auto;
+                _encoderSettings.PdfMultiPage = (bool)rbAddToDocument.IsChecked;
+                _encoderSettings.PdfACompatible = (bool)chkPdfACompatible.IsChecked;
+                _encoderSettings.PdfDocumentInfo.Author = txtPdfAuthor.Text;
+                _encoderSettings.PdfDocumentInfo.Title = txtPdfTitle.Text;
 
-            DialogResult = true;
+                if ((bool)rbComprNone.IsChecked)
+                    _encoderSettings.PdfImageCompression = PdfImageCompression.None;
+                else if ((bool)rbComprCCITT.IsChecked)
+                    _encoderSettings.PdfImageCompression = PdfImageCompression.CcittFax;
+                else if ((bool)rbComprLzw.IsChecked)
+                    _encoderSettings.PdfImageCompression = PdfImageCompression.LZW;
+                else if ((bool)rbComprJpeg.IsChecked)
+                {
+                    _encoderSettings.PdfImageCompression = PdfImageCompression.JPEG;
+                    _encoderSettings.JpegQuality = jpegQualityNumericUpDown.Value;
+                }
+                else if ((bool)rbComprZip.IsChecked)
+                    _encoderSettings.PdfImageCompression = PdfImageCompression.ZIP;
+                else if ((bool)rbComprAuto.IsChecked)
+                    _encoderSettings.PdfImageCompression = PdfImageCompression.Auto;
+
+                DialogResult = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error");
+            }
         }
 
         private void EnableJpegCompressionQuality(object sender, RoutedEventArgs e)

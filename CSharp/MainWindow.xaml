@@ -5,6 +5,7 @@
         Title="VintaSoft WPF TWAIN Advanced Demo"
         Closing="MainWindow_Closing"
         SizeChanged="MainWindow_Resize"
+        WindowStartupLocation="CenterScreen"
         Height="683" Width="760" MinWidth="760" MinHeight="683">
     <DockPanel LastChildFill="True" Margin="10">
         <StackPanel DockPanel.Dock="top" Orientation="Horizontal">

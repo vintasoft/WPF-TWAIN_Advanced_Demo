@@ -109,27 +109,36 @@ namespace WpfTwainAdvancedDemo
             // if device manager is closed
             else
             {
-                // try to find the device manager specified by user
-                if (twain2CompatibleCheckBox.IsChecked == true)
-                    _deviceManager.IsTwain2Compatible = true;
-                else
-                    _deviceManager.IsTwain2Compatible = false;
-                // if device manager is not found
-                if (!_deviceManager.IsTwainAvailable)
+                try
                 {
-                    // try to find another version of device manager
-                    _deviceManager.IsTwain2Compatible = !_deviceManager.IsTwain2Compatible;
-                    // if device manager is not found again
+                    // try to find the device manager specified by user
+                    if (twain2CompatibleCheckBox.IsChecked == true)
+                        _deviceManager.IsTwain2Compatible = true;
+                    else
+                        _deviceManager.IsTwain2Compatible = false;
+                    // if device manager is not found
                     if (!_deviceManager.IsTwainAvailable)
                     {
-                        // show dialog with error message
-                        MessageBox.Show("TWAIN device manager is not found.", "TWAIN device manager", MessageBoxButton.OK, MessageBoxImage.Error);
+                        // try to find another version of device manager
+                        _deviceManager.IsTwain2Compatible = !_deviceManager.IsTwain2Compatible;
+                        // if device manager is not found again
+                        if (!_deviceManager.IsTwainAvailable)
+                        {
+                            // show dialog with error message
+                            MessageBox.Show("TWAIN device manager is not found.", "TWAIN device manager", MessageBoxButton.OK, MessageBoxImage.Error);
 
-                        // open a HTML page with article describing how to solve the problem
-                        Process.Start("http://www.vintasoft.com/docs/vstwain-dotnet/index.html?Programming-Twain-Device_Manager.html");
+                            // open a HTML page with article describing how to solve the problem
+                            Process.Start("http://www.vintasoft.com/docs/vstwain-dotnet/Programming-Twain-Device_Manager.html");
 
-                        return;
+                            return;
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    // show dialog with error message
+                    MessageBox.Show(ex.Message, "TWAIN device manager", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
 
                 // device manager is found
@@ -138,6 +147,13 @@ namespace WpfTwainAdvancedDemo
                 if (twain2CompatibleCheckBox.IsChecked != _deviceManager.IsTwain2Compatible)
                     // update check box value 
                     twain2CompatibleCheckBox.IsChecked = _deviceManager.IsTwain2Compatible;
+
+                // if 64-bit TWAIN2 device manager is used
+                if (IntPtr.Size == 8 && _deviceManager.IsTwain2Compatible)
+                {
+                    if (!InitTwain2DeviceManagerMode())
+                        return;
+                }
 
                 try
                 {
@@ -177,6 +193,48 @@ namespace WpfTwainAdvancedDemo
 
             // update UI
             UpdateUI();
+        }
+
+        /// <summary>
+        /// Initializes the device manager mode.
+        /// </summary>
+        private bool InitTwain2DeviceManagerMode()
+        {
+            // create a window that allows to view and edit mode of 64-bit TWAIN2 device manager
+            SelectDeviceManagerModeWindow window = new SelectDeviceManagerModeWindow();
+            // initialize window
+            window.Owner = this;
+            window.Use32BitDevices = _deviceManager.Are32BitDevicesUsed;
+
+            // show dialog
+            if (window.ShowDialog() == true)
+            {
+                // if device manager mode is changed
+                if (window.Use32BitDevices != _deviceManager.Are32BitDevicesUsed)
+                {
+                    try
+                    {
+                        // if 32-bit devices must be used
+                        if (window.Use32BitDevices)
+                            _deviceManager.Use32BitDevices();
+                        else
+                            _deviceManager.Use64BitDevices();
+                    }
+                    catch (TwainDeviceManagerException ex)
+                    {
+                        // show dialog with error message
+                        MessageBox.Show(ex.Message, "TWAIN device manager", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                return false;
+            }
+
+            return true;
         }
 
         #endregion
@@ -379,8 +437,8 @@ namespace WpfTwainAdvancedDemo
                     else if (resolutionComboBox.SelectedIndex == 4)
                         resolution = new Resolution(600, 600);
 
-                    if (device.Resolution.Horizontal != resolution.Horizontal ||
-                        device.Resolution.Vertical != resolution.Vertical)
+                    if (device.Resolution.GetXResolutionInDpi() != resolution.GetXResolutionInDpi() ||
+                        device.Resolution.GetYResolutionInDpi() != resolution.GetYResolutionInDpi())
                         device.Resolution = resolution;
                 }
                 catch (TwainException)
@@ -807,8 +865,7 @@ namespace WpfTwainAdvancedDemo
                             if (!(bool)jpegSettingsDlg.ShowDialog())
                                 return;
 
-                            encoderSettings = new TwainJpegEncoderSettings();
-                            ((TwainJpegEncoderSettings)encoderSettings).JpegQuality = jpegSettingsDlg.Quality;
+                            encoderSettings = jpegSettingsDlg.EncoderSettings;
                             break;
 
                         case 5: // TIFF
@@ -817,10 +874,7 @@ namespace WpfTwainAdvancedDemo
                                 return;
 
                             saveAllImages = tiffSettingsDlg.SaveAllImages;
-                            encoderSettings = new TwainTiffEncoderSettings();
-                            ((TwainTiffEncoderSettings)encoderSettings).TiffMultiPage = tiffSettingsDlg.MultiPage;
-                            ((TwainTiffEncoderSettings)encoderSettings).TiffCompression = tiffSettingsDlg.Compression;
-                            ((TwainTiffEncoderSettings)encoderSettings).JpegQuality = tiffSettingsDlg.JpegQuality;
+                            encoderSettings = tiffSettingsDlg.EncoderSettings;
                             break;
 
                         case 6: // PDF
@@ -829,13 +883,7 @@ namespace WpfTwainAdvancedDemo
                                 return;
 
                             saveAllImages = pdfSettingsDlg.SaveAllImages;
-                            encoderSettings = new TwainPdfEncoderSettings();
-                            ((TwainPdfEncoderSettings)encoderSettings).PdfMultiPage = pdfSettingsDlg.MultiPage;
-                            ((TwainPdfEncoderSettings)encoderSettings).PdfImageCompression = pdfSettingsDlg.Compression;
-                            ((TwainPdfEncoderSettings)encoderSettings).PdfACompatible = pdfSettingsDlg.PdfACompatible;
-                            ((TwainPdfEncoderSettings)encoderSettings).PdfDocumentInfo.Author = pdfSettingsDlg.PdfAuthor;
-                            ((TwainPdfEncoderSettings)encoderSettings).PdfDocumentInfo.Title = pdfSettingsDlg.PdfTitle;
-                            ((TwainPdfEncoderSettings)encoderSettings).JpegQuality = pdfSettingsDlg.JpegQuality;
+                            encoderSettings = pdfSettingsDlg.EncoderSettings;
                             break;
                     }
 
@@ -973,7 +1021,7 @@ namespace WpfTwainAdvancedDemo
             }
         }
 
-        
+
         /// <summary>
         /// Updates UI.
         /// </summary>
@@ -987,6 +1035,7 @@ namespace WpfTwainAdvancedDemo
                     hasDevices = true;
             }
 
+            twain2CompatibleCheckBox.IsEnabled = _deviceManager.State == DeviceManagerState.Closed;
             openDeviceManagerButton.IsEnabled = !_isImageAcquiring;
             selectDeviceButton.IsEnabled = isDeviceManagerOpened && !_isImageAcquiring;
 

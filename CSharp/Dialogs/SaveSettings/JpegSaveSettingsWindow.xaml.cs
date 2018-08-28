@@ -1,6 +1,6 @@
-﻿using System.Windows;
-using System.Windows.Input;
-using System.Windows.Controls;
+﻿using System;
+using System.Windows;
+using Vintasoft.WpfTwain.ImageEncoders;
 
 namespace WpfTwainAdvancedDemo
 {
@@ -9,18 +9,6 @@ namespace WpfTwainAdvancedDemo
     /// </summary>
     public partial class JpegSaveSettingsWindow : Window
     {
-
-        #region Properties
-
-        int _quality = 90;
-        public int Quality
-        {
-            get { return _quality; }
-        }
-
-        #endregion
-
-
 
         #region Constructors
 
@@ -35,12 +23,31 @@ namespace WpfTwainAdvancedDemo
 
 
 
+        #region Properties
+
+        TwainJpegEncoderSettings _encoderSettings = new TwainJpegEncoderSettings();
+        public TwainJpegEncoderSettings EncoderSettings
+        {
+            get { return _encoderSettings; }
+        }
+
+        #endregion
+
+        
+        
         #region Methods
 
         private void bOk_Click(object sender, RoutedEventArgs e)
         {
-            _quality = nJpegQuality.Value;
-            DialogResult = true;
+            try
+            {
+                _encoderSettings.JpegQuality = nJpegQuality.Value;
+                DialogResult = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error");
+            }
         }
 
         private void bCancel_Click(object sender, RoutedEventArgs e)

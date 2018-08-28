@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Threading;
+
 using Vintasoft.WpfTwain;
 using Vintasoft.WpfTwain.ImageProcessing;
 
@@ -78,7 +80,12 @@ namespace WpfTwainAdvancedDemo
                 UpdateImageScrolls();
 
                 //
-                this.Title = string.Format("Image Processing - {0} bpp, {1}x{2}, {3}x{4} dpi", _image.ImageInfo.BitCount, _image.ImageInfo.Width, _image.ImageInfo.Height, _image.ImageInfo.Resolution.Horizontal, _image.ImageInfo.Resolution.Vertical);
+                this.Title = string.Format("Image Processing - {0} bpp, {1}x{2}, {3}x{4} dpi",
+                    _image.ImageInfo.BitCount,
+                    _image.ImageInfo.Width,
+                    _image.ImageInfo.Height,
+                    _image.ImageInfo.Resolution.GetXResolutionInDpi(),
+                    _image.ImageInfo.Resolution.GetYResolutionInDpi());
             }
         }
 
@@ -297,101 +304,128 @@ namespace WpfTwainAdvancedDemo
         /// </summary>
         private void runCommandButton_Click(object sender, RoutedEventArgs e)
         {
-            lock (_image)
+            processingCommandProgressBar.Value = 0;
+            runCommandButton.IsEnabled = false;
+            try
             {
-                _image.Progress += new EventHandler<AcquiredImageProcessingProgressEventArgs>(ImageProcessingProgress);
+                DoEvents();
 
-                try
+                lock (_image)
                 {
-                    switch (commandsComboBox.Text)
+                    _image.Progress += new EventHandler<AcquiredImageProcessingProgressEventArgs>(ImageProcessingProgress);
+
+                    try
                     {
-                        case "Is Image Blank?":
-                            int maxNoiseLevel = (int)param1NumericUpDown.Value;
-                            float currentNoiseLevel = 0;
-                            if (_image.IsBlank(maxNoiseLevel, ref currentNoiseLevel))
-                                MessageBox.Show(string.Format("Image is blank. Current noise level = {0}%", currentNoiseLevel));
-                            else
-                                MessageBox.Show(string.Format("Image is NOT blank. Current noise level = {0}%", currentNoiseLevel));
-                            break;
+                        switch (commandsComboBox.Text)
+                        {
+                            case "Is Image Blank?":
+                                int maxNoiseLevel = (int)param1NumericUpDown.Value;
+                                float currentNoiseLevel = 0;
+                                if (_image.IsBlank(maxNoiseLevel, ref currentNoiseLevel))
+                                    MessageBox.Show(string.Format("Image is blank. Current noise level = {0}%", currentNoiseLevel));
+                                else
+                                    MessageBox.Show(string.Format("Image is NOT blank. Current noise level = {0}%", currentNoiseLevel));
+                                break;
 
-                        case "Invert":
-                            _image.Invert();
-                            break;
+                            case "Invert":
+                                _image.Invert();
+                                break;
 
-                        case "Change Brightness":
-                            int brightness = (int)param1NumericUpDown.Value;
-                            _image.ChangeBrightness(brightness);
-                            break;
+                            case "Change Brightness":
+                                int brightness = (int)param1NumericUpDown.Value;
+                                _image.ChangeBrightness(brightness);
+                                break;
 
-                        case "Change Contrast":
-                            int contrast = (int)param1NumericUpDown.Value;
-                            _image.ChangeContrast(contrast);
-                            break;
+                            case "Change Contrast":
+                                int contrast = (int)param1NumericUpDown.Value;
+                                _image.ChangeContrast(contrast);
+                                break;
 
-                        case "Crop":
-                            int left = (int)param1NumericUpDown.Value;
-                            int top = (int)param2NumericUpDown.Value;
-                            int width = (int)param3NumericUpDown.Value;
-                            int height = (int)param4NumericUpDown.Value;
-                            try
-                            {
-                                _image.Crop(left, top, width, height);
-                            }
-                            catch (ArgumentOutOfRangeException ex)
-                            {
-                                MessageBox.Show(ex.Message);
-                            }
-                            break;
+                            case "Crop":
+                                int left = (int)param1NumericUpDown.Value;
+                                int top = (int)param2NumericUpDown.Value;
+                                int width = (int)param3NumericUpDown.Value;
+                                int height = (int)param4NumericUpDown.Value;
+                                try
+                                {
+                                    _image.Crop(left, top, width, height);
+                                }
+                                catch (ArgumentOutOfRangeException ex)
+                                {
+                                    MessageBox.Show(ex.Message);
+                                }
+                                break;
 
-                        case "Resize Canvas":
-                            int canvasWidth = (int)param1NumericUpDown.Value;
-                            int canvasHeight = (int)param2NumericUpDown.Value;
-                            int imageXPosition = (int)param3NumericUpDown.Value;
-                            int imageYPosition = (int)param4NumericUpDown.Value;
-                            try
-                            {
-                                _image.ResizeCanvas(canvasWidth, canvasHeight, BorderColor.AutoDetect, imageXPosition, imageYPosition);
-                            }
-                            catch (ArgumentOutOfRangeException ex)
-                            {
-                                MessageBox.Show(ex.Message);
-                            }
-                            break;
+                            case "Resize Canvas":
+                                int canvasWidth = (int)param1NumericUpDown.Value;
+                                int canvasHeight = (int)param2NumericUpDown.Value;
+                                int imageXPosition = (int)param3NumericUpDown.Value;
+                                int imageYPosition = (int)param4NumericUpDown.Value;
+                                try
+                                {
+                                    _image.ResizeCanvas(canvasWidth, canvasHeight, BorderColor.AutoDetect, imageXPosition, imageYPosition);
+                                }
+                                catch (ArgumentOutOfRangeException ex)
+                                {
+                                    MessageBox.Show(ex.Message);
+                                }
+                                break;
 
-                        case "Rotate":
-                            int angle = (int)param1NumericUpDown.Value;
-                            _image.Rotate(angle, BorderColor.AutoDetect);
-                            break;
+                            case "Rotate":
+                                int angle = (int)param1NumericUpDown.Value;
+                                _image.Rotate(angle, BorderColor.AutoDetect);
+                                break;
 
-                        case "Despeckle":
-                            int level1 = (int)param1NumericUpDown.Value;
-                            int level2 = (int)param2NumericUpDown.Value;
-                            int radius = (int)param3NumericUpDown.Value;
-                            int level3 = (int)param4NumericUpDown.Value;
-                            _image.Despeckle(level1, level2, radius, level3);
-                            break;
+                            case "Despeckle":
+                                int level1 = (int)param1NumericUpDown.Value;
+                                int level2 = (int)param2NumericUpDown.Value;
+                                int radius = (int)param3NumericUpDown.Value;
+                                int level3 = (int)param4NumericUpDown.Value;
+                                _image.Despeckle(level1, level2, radius, level3);
+                                break;
 
-                        case "Deskew":
-                            int scanIntervalX = (int)param1NumericUpDown.Value;
-                            int scanIntervalY = (int)param2NumericUpDown.Value;
-                            _image.Deskew(BorderColor.AutoDetect, scanIntervalX, scanIntervalY);
-                            break;
+                            case "Deskew":
+                                int scanIntervalX = (int)param1NumericUpDown.Value;
+                                int scanIntervalY = (int)param2NumericUpDown.Value;
+                                _image.Deskew(BorderColor.AutoDetect, scanIntervalX, scanIntervalY);
+                                break;
 
-                        case "Remove Border":
-                            int borderSize = (int)param1NumericUpDown.Value;
-                            _image.DetectBorder(borderSize);
-                            break;
+                            case "Remove Border":
+                                int borderSize = (int)param1NumericUpDown.Value;
+                                _image.DetectBorder(borderSize);
+                                break;
+                        }
                     }
-                }
-                catch (ImagingException ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
+                    catch (ImagingException ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
 
-                _image.Progress -= new EventHandler<AcquiredImageProcessingProgressEventArgs>(ImageProcessingProgress);
+                    _image.Progress -= new EventHandler<AcquiredImageProcessingProgressEventArgs>(ImageProcessingProgress);
 
-                UpdateImage();
+                    UpdateImage();
+                }
             }
+            finally
+            {
+                runCommandButton.IsEnabled = true;
+            }
+        }
+
+        /// <summary>
+        /// Processes all Windows messages currently in the message queue.
+        /// </summary>
+        private void DoEvents()
+        {
+            DispatcherFrame frame = new DispatcherFrame();
+            Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background,
+                new DispatcherOperationCallback(ExitFrame), frame);
+            Dispatcher.PushFrame(frame);
+        }
+        private object ExitFrame(object f)
+        {
+            ((DispatcherFrame)f).Continue = false;
+            return null;
         }
 
         /// <summary>
@@ -400,6 +434,7 @@ namespace WpfTwainAdvancedDemo
         private void ImageProcessingProgress(object sender, AcquiredImageProcessingProgressEventArgs e)
         {
             processingCommandProgressBar.Value = e.Progress;
+            DoEvents();
         }
 
         /// <summary>

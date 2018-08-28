@@ -6,7 +6,7 @@
     <StackPanel>
         <DockPanel HorizontalAlignment="Center" Margin="0,4,0,4">
             <Label Margin="0,0,4,0">Quality:</Label>
-            <uc:NumericUpDown x:Name="nJpegQuality" Width="88" Height="29" Padding="2" Canvas.Left="3" Canvas.Top="41" Value="90" IsEnabled="False" Minimum="10" Maximum="100"/>
+            <uc:NumericUpDown x:Name="nJpegQuality" Width="88" Height="29" Padding="2" Canvas.Left="3" Canvas.Top="41" Value="90" IsEnabled="True" Minimum="10" Maximum="100"/>
         </DockPanel>
         
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Height="23" Margin="0,10,0,0">

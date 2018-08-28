@@ -1,7 +1,5 @@
-﻿using System.Windows;
-using System.Windows.Input;
-using System.Windows.Controls;
-using Vintasoft.WpfTwain;
+﻿using System;
+using System.Windows;
 using Vintasoft.WpfTwain.ImageEncoders;
 
 namespace WpfTwainAdvancedDemo
@@ -11,36 +9,6 @@ namespace WpfTwainAdvancedDemo
     /// </summary>
     public partial class TiffSaveSettingsWindow : Window
     {
-
-        #region Fields & properties
-
-        bool _saveAllImages = false;
-        public bool SaveAllImages
-        {
-            get { return _saveAllImages; }
-        }
-
-        bool _multiPage = true;
-        public bool MultiPage
-        {
-            get { return _multiPage; }
-        }
-
-        TiffCompression _compression = TiffCompression.Auto;
-        public TiffCompression Compression
-        {
-            get { return _compression; }
-        }
-
-        int _jpegQuality = 90;
-        public int JpegQuality
-        {
-            get { return _jpegQuality; }
-        }
-
-        #endregion
-
-
 
         #region Constructor
 
@@ -52,8 +20,8 @@ namespace WpfTwainAdvancedDemo
 
             if (!isFileExist)
             {
-                rbCreateNewDocument.IsChecked = true;
-                rbAddToDocument.IsEnabled = false;
+                createNewDocumentRadioButton.IsChecked = true;
+                addToDocumentRadioButton.IsEnabled = false;
             }
         }
 
@@ -61,31 +29,85 @@ namespace WpfTwainAdvancedDemo
 
 
 
+        #region Properties
+
+        bool _saveAllImages = false;
+        public bool SaveAllImages
+        {
+            get { return _saveAllImages; }
+        }
+
+        TwainTiffEncoderSettings _encoderSettings = new TwainTiffEncoderSettings();
+        public TwainTiffEncoderSettings EncoderSettings
+        {
+            get { return _encoderSettings; }
+        }
+
+        #endregion
+
+        
+        
         #region Methods
+
+        private void useStripsRadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (rowsPerStripLabel == null)
+                return;
+
+            rowsPerStripLabel.IsEnabled = true;
+            rowsPerStripNumericUpDown.IsEnabled = true;
+            tileSizeLabel.IsEnabled = false;
+            tileSizeNumericUpDown.IsEnabled = false;
+        }
+
+        private void useTilesRadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (rowsPerStripLabel == null)
+                return;
+
+            rowsPerStripLabel.IsEnabled = false;
+            rowsPerStripNumericUpDown.IsEnabled = false;
+            tileSizeLabel.IsEnabled = true;
+            tileSizeNumericUpDown.IsEnabled = true;
+        }
 
         private void bOk_Click(object sender, RoutedEventArgs e)
         {
-            _saveAllImages = (bool)rbSaveAllImages.IsChecked;
+            _saveAllImages = (bool)saveAllImagesRadioButton.IsChecked;
 
-            _multiPage = (bool)rbAddToDocument.IsChecked;
-            
-            if ((bool)rbComprNone.IsChecked)
-                _compression = TiffCompression.None;
-            else if ((bool)rbComprCCITT.IsChecked)
-                _compression = TiffCompression.CCITGroup4;
-            else if ((bool)rbComprLzw.IsChecked)
-                _compression = TiffCompression.LZW;
-            else if ((bool)rbComprJpeg.IsChecked)
+            try
             {
-                _compression = TiffCompression.JPEG;
-                _jpegQuality = nJpegQuality.Value;
-            }
-            else if ((bool)rbComprZip.IsChecked)
-                _compression = TiffCompression.ZIP;
-            else if ((bool)rbComprAuto.IsChecked)
-                _compression = TiffCompression.Auto;
+                _encoderSettings.TiffMultiPage = (bool)addToDocumentRadioButton.IsChecked;
 
-            DialogResult = true;
+                if ((bool)comprNoneRadioButton.IsChecked)
+                    _encoderSettings.TiffCompression = TiffCompression.None;
+                else if ((bool)comprCcittRadioButton.IsChecked)
+                    _encoderSettings.TiffCompression = TiffCompression.CCITGroup4;
+                else if ((bool)comprLzwRadioButton.IsChecked)
+                    _encoderSettings.TiffCompression = TiffCompression.LZW;
+                else if ((bool)comprJpegRadioButton.IsChecked)
+                {
+                    _encoderSettings.TiffCompression = TiffCompression.JPEG;
+                    _encoderSettings.JpegQuality = jpegQualityNumericUpDown.Value;
+                }
+                else if ((bool)comprZipRadioButton.IsChecked)
+                    _encoderSettings.TiffCompression = TiffCompression.ZIP;
+                else if ((bool)comprAutoRadioButton.IsChecked)
+                    _encoderSettings.TiffCompression = TiffCompression.Auto;
+
+                if (useStripsRadioButton.IsChecked == true)
+                    _encoderSettings.UseTiles = false;
+                else
+                    _encoderSettings.UseTiles = true;
+                _encoderSettings.RowsPerStrip = rowsPerStripNumericUpDown.Value;
+                _encoderSettings.TileSize = tileSizeNumericUpDown.Value;
+
+                DialogResult = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error");
+            }
         }
 
         private void EnableJpegCompressionQuality(object sender, RoutedEventArgs e)
@@ -93,7 +115,7 @@ namespace WpfTwainAdvancedDemo
             if (!this.IsVisible)
                 return;
 
-            gbJpegCompression.IsEnabled = true;
+            jpegCompressionGroupBox.IsEnabled = true;
         }
 
         private void DisableJpegCompressionQuality(object sender, RoutedEventArgs e)
@@ -101,7 +123,7 @@ namespace WpfTwainAdvancedDemo
             if (!this.IsVisible)
                 return;
 
-            gbJpegCompression.IsEnabled = false;
+            jpegCompressionGroupBox.IsEnabled = false;
         }
 
         private void bCancel_Click(object sender, RoutedEventArgs e)
