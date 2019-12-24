@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
@@ -116,37 +116,19 @@ namespace WpfTwainAdvancedDemo
                         _deviceManager.IsTwain2Compatible = true;
                     else
                         _deviceManager.IsTwain2Compatible = false;
-                    // if device manager is not found
-                    if (!_deviceManager.IsTwainAvailable)
-                    {
-                        // try to find another version of device manager
-                        _deviceManager.IsTwain2Compatible = !_deviceManager.IsTwain2Compatible;
-                        // if device manager is not found again
-                        if (!_deviceManager.IsTwainAvailable)
-                        {
-                            // show dialog with error message
-                            MessageBox.Show("TWAIN device manager is not found.", "TWAIN device manager", MessageBoxButton.OK, MessageBoxImage.Error);
-
-                            // open a HTML page with article describing how to solve the problem
-                            Process.Start("http://www.vintasoft.com/docs/vstwain-dotnet/Programming-Twain-Device_Manager.html");
-
-                            return;
-                        }
-                    }
                 }
                 catch (Exception ex)
                 {
                     // show dialog with error message
-                    MessageBox.Show(ex.Message, "TWAIN device manager", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(GetFullExceptionMessage(ex), "TWAIN device manager", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                    // open a HTML page with article describing how to solve the problem
+                    OpenBrowser("http://www.vintasoft.com/docs/vstwain-dotnet/index.html?Programming-Twain-Device_Manager.html");
+
                     return;
                 }
 
                 // device manager is found
-
-                // if check box value should be updated
-                if (twain2CompatibleCheckBox.IsChecked != _deviceManager.IsTwain2Compatible)
-                    // update check box value 
-                    twain2CompatibleCheckBox.IsChecked = _deviceManager.IsTwain2Compatible;
 
                 // if 64-bit TWAIN2 device manager is used
                 if (IntPtr.Size == 8 && _deviceManager.IsTwain2Compatible)
@@ -166,10 +148,10 @@ namespace WpfTwainAdvancedDemo
                     _deviceManager.Close();
 
                     // show dialog with error message
-                    MessageBox.Show(ex.Message, "TWAIN device manager", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(GetFullExceptionMessage(ex), "TWAIN device manager", MessageBoxButton.OK, MessageBoxImage.Error);
 
                     // open a HTML page with article describing how to solve the problem
-                    Process.Start("http://www.vintasoft.com/docs/vstwain-dotnet/index.html?Programming-Twain-Device_Manager.html");
+                    OpenBrowser("http://www.vintasoft.com/docs/vstwain-dotnet/index.html?Programming-Twain-Device_Manager.html");
 
                     return;
                 }
@@ -223,7 +205,7 @@ namespace WpfTwainAdvancedDemo
                     catch (TwainDeviceManagerException ex)
                     {
                         // show dialog with error message
-                        MessageBox.Show(ex.Message, "TWAIN device manager", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show(GetFullExceptionMessage(ex), "TWAIN device manager", MessageBoxButton.OK, MessageBoxImage.Error);
 
                         return false;
                     }
@@ -283,11 +265,11 @@ namespace WpfTwainAdvancedDemo
             }
             catch (TwainDeviceException ex)
             {
-                MessageBox.Show(ex.Message, "Device error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(GetFullExceptionMessage(ex), "Device error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (TwainDeviceCapabilityException ex)
             {
-                MessageBox.Show(ex.Message, "Device capability rror", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(GetFullExceptionMessage(ex), "Device capability rror", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -390,7 +372,7 @@ namespace WpfTwainAdvancedDemo
                     // specify that image acquisition is finished
                     _isImageAcquiring = false;
 
-                    MessageBox.Show(ex.Message, "TWAIN device", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(GetFullExceptionMessage(ex), "TWAIN device", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -506,7 +488,7 @@ namespace WpfTwainAdvancedDemo
                 }
                 catch (TwainException ex)
                 {
-                    MessageBox.Show(ex.Message, "TWAIN device");
+                    MessageBox.Show(GetFullExceptionMessage(ex), "TWAIN device");
                 }
 
                 // if device supports asynchronous events
@@ -533,7 +515,7 @@ namespace WpfTwainAdvancedDemo
                     // specify that image acquisition is finished
                     _isImageAcquiring = false;
 
-                    MessageBox.Show(ex.Message, "TWAIN device", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(GetFullExceptionMessage(ex), "TWAIN device", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
@@ -804,6 +786,12 @@ namespace WpfTwainAdvancedDemo
             {
                 image1.Margin = new Thickness(2, 2, 2, 2);
             }
+
+            if (_imageIndex >= 0)
+            {
+                UpdateLayout();
+                SetImageScrolls();
+            }
         }
 
         #endregion
@@ -917,7 +905,7 @@ namespace WpfTwainAdvancedDemo
                 catch (Exception ex)
                 {
                     Cursor = Cursors.Arrow;
-                    MessageBox.Show(ex.Message, "Saving error");
+                    MessageBox.Show(GetFullExceptionMessage(ex), "Saving error");
                 }
             }
         }
@@ -1103,6 +1091,37 @@ namespace WpfTwainAdvancedDemo
 
             // dispose all images from image collection and clear the image collection
             _images.ClearAndDisposeItems();
+        }
+
+        /// <summary>
+        /// Returns the message of exception and inner exceptions.
+        /// </summary>
+        private string GetFullExceptionMessage(System.Exception ex)
+        {
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            sb.AppendLine(ex.Message);
+
+            System.Exception innerException = ex.InnerException;
+            while (innerException != null)
+            {
+                if (ex.Message != innerException.Message)
+                    sb.AppendLine(string.Format("Inner exception: {0}", innerException.Message));
+                innerException = innerException.InnerException;
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Opens the browser with specified URL.
+        /// </summary>
+        /// <param name="url">The URL.</param>
+        private void OpenBrowser(string url)
+        {
+            ProcessStartInfo pi = new ProcessStartInfo("cmd", string.Format("/c start {0}", url));
+            pi.CreateNoWindow = true;
+            pi.WindowStyle = ProcessWindowStyle.Hidden;
+            Process.Start(pi);
         }
 
         #endregion

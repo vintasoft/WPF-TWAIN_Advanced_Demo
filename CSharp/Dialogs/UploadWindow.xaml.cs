@@ -82,7 +82,7 @@ namespace WpfTwainAdvancedDemo
                 _ftpUpload.User = ftpUserTextBox.Text;
                 _ftpUpload.Password = ftpPasswTextBox.Password;
                 _ftpUpload.PassiveMode = (bool)flagPassModeCheckBox.IsChecked;
-                _ftpUpload.Timeout = 2000;
+                _ftpUpload.Timeout = 5000;
                 _ftpUpload.Path = ftpPathTextBox.Text;
                 _ftpUpload.AddFile(ftpFileNameTextBox.Text, _acquiredImageToUpload.GetAsStream(GetImageFileFormat(ftpFileNameTextBox.Text)));
                 _ftpUpload.PostData();
@@ -176,6 +176,7 @@ namespace WpfTwainAdvancedDemo
                 _httpUpload.Completed += new EventHandler<Vintasoft.WpfTwain.ImageUploading.Http.CompletedEventArgs>(_httpUpload_Completed);
 
                 _httpUpload.Url = httpUrlTextBox.Text;
+                _httpUpload.Timeout = 5000;
                 _httpUpload.UseDefaultCredentials = true;
                 _httpUpload.AddTextField(httpTextField1TextBox.Text, httpTextField1ValueTextBox.Text);
                 _httpUpload.AddTextField(httpTextField2TextBox.Text, httpTextField2ValueTextBox.Text);

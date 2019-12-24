@@ -37,7 +37,7 @@
         <StackPanel Grid.Row="1" Grid.Column="1" Margin="5,0,0,0">
             <StackPanel Grid.Row="1" Grid.Column="1" Margin="0" Width="382">
                 <Label Padding="2">Usage mode:</Label>
-                <TextBox Name="usageModeTextBox" Width="379" Margin="0,0,0,0" HorizontalAlignment="Left"></TextBox>
+                <TextBox Name="usageModeTextBox" Width="379" Margin="0,0,0,0" HorizontalAlignment="Left" IsReadOnly="True"></TextBox>
             </StackPanel>
             <WrapPanel Grid.Row="1" Grid.Column="1" Margin="0" Width="382">
                 <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,0">
@@ -46,35 +46,35 @@
                 </StackPanel>
                 <StackPanel Grid.Row="1" Grid.Column="1" Margin="4,0,0,0">
                     <Label Padding="2">Container type:</Label>
-                    <TextBox Name="containerTypeTextBox" Width="124" Margin="5,0,0,0"></TextBox>
+                    <TextBox Name="containerTypeTextBox" Width="124" Margin="5,0,0,0" IsReadOnly="True"></TextBox>
                 </StackPanel>
                 <StackPanel Grid.Row="1" Grid.Column="1" Margin="4,0,0,0">
                     <Label Padding="2">Value type:</Label>
-                    <TextBox Name="valueTypeTextBox" Width="102" Margin="5,0,0,0"></TextBox>
+                    <TextBox Name="valueTypeTextBox" Width="102" Margin="5,0,0,0" IsReadOnly="True"></TextBox>
                 </StackPanel>
             </WrapPanel>
             <StackPanel Grid.Row="1" Grid.Column="1" Margin="0" Width="382">
                 <Label Padding="2">Current value:</Label>
-                <TextBox Name="currentValueTextBox" Width="379" Margin="0,0,0,0" HorizontalAlignment="Left"></TextBox>
+                <TextBox Name="currentValueTextBox" Width="379" Margin="0,0,0,0" HorizontalAlignment="Left" IsReadOnly="True"></TextBox>
             </StackPanel>
             <WrapPanel Grid.Row="1" Grid.Column="1" Margin="0" Width="382">
                 <StackPanel Grid.Row="1" Grid.Column="1" Margin="0" Width="200">
                     <Label Padding="2">Min value:</Label>
-                    <TextBox Name="minValueTextBox" Width="180" Margin="0,0,0,0" HorizontalAlignment="Left"></TextBox>
+                    <TextBox Name="minValueTextBox" Width="180" Margin="0,0,0,0" HorizontalAlignment="Left" IsReadOnly="True"></TextBox>
                 </StackPanel>
                 <StackPanel Grid.Row="1" Grid.Column="1" Margin="0" Width="180">
                     <Label Padding="2">Max value:</Label>
-                    <TextBox Name="maxValueTextBox" Width="180" Margin="0,0,0,0" HorizontalAlignment="Left"></TextBox>
+                    <TextBox Name="maxValueTextBox" Width="180" Margin="0,0,0,0" HorizontalAlignment="Left" IsReadOnly="True"></TextBox>
                 </StackPanel>
             </WrapPanel>
             <WrapPanel Grid.Row="1" Grid.Column="1" Margin="0" Width="382">
                 <StackPanel Grid.Row="1" Grid.Column="1" Margin="0" Width="200">
                     <Label Padding="2">Default value:</Label>
-                    <TextBox Name="defaultValueTextBox" Width="180" Margin="0,0,0,0" HorizontalAlignment="Left"></TextBox>
+                    <TextBox Name="defaultValueTextBox" Width="180" Margin="0,0,0,0" HorizontalAlignment="Left" IsReadOnly="True"></TextBox>
                 </StackPanel>
                 <StackPanel Grid.Row="1" Grid.Column="1" Margin="0" Width="180">
                     <Label Padding="2">Step size:</Label>
-                    <TextBox Name="stepSizeTextBox" Width="180" Margin="0,0,0,0" HorizontalAlignment="Left"></TextBox>
+                    <TextBox Name="stepSizeTextBox" Width="180" Margin="0,0,0,0" HorizontalAlignment="Left" IsReadOnly="True"></TextBox>
                 </StackPanel>
             </WrapPanel>
             <Label Padding="2">
