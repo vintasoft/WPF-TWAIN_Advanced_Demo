@@ -123,7 +123,7 @@ namespace WpfTwainAdvancedDemo
                     MessageBox.Show(GetFullExceptionMessage(ex), "TWAIN device manager", MessageBoxButton.OK, MessageBoxImage.Error);
 
                     // open a HTML page with article describing how to solve the problem
-                    OpenBrowser("http://www.vintasoft.com/docs/vstwain-dotnet/index.html?Programming-Twain-Device_Manager.html");
+                    OpenBrowser("https://www.vintasoft.com/docs/vstwain-dotnet/Programming-Twain-Device_Manager.html");
 
                     return;
                 }
