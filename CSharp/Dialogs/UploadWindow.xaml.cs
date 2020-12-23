@@ -17,19 +17,25 @@ namespace WpfTwainAdvancedDemo
 
         #region Fields
 
-        // acquired image to upload
+        /// <summary>
+        /// Acquired image to upload.
+        /// </summary>
         AcquiredImage _acquiredImageToUpload;
 
-        // FTP uploader
+        /// <summary>
+        /// FTP uploader.
+        /// </summary>
         FtpUpload _ftpUpload = null;
-        // HTTP uploader
+        /// <summary>
+        /// HTTP uploader.
+        /// </summary>
         HttpUpload _httpUpload = null;
 
         #endregion
 
 
 
-        #region Constructor
+        #region Constructors
 
         public UploadWindow(Window owner, AcquiredImage acquiredImageToUpload)
         {
@@ -51,8 +57,6 @@ namespace WpfTwainAdvancedDemo
         /// <summary>
         /// Start image uploading process to FTP server.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void ftpUploadButton_Click(object sender, RoutedEventArgs e)
         {
             MainWindow mainWindow = Owner as MainWindow;
@@ -102,8 +106,6 @@ namespace WpfTwainAdvancedDemo
         /// <summary>
         /// Cancel image uploading process.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void ftpUploadCancelButton_Click(object sender, RoutedEventArgs e)
         {
             _ftpUpload.Abort();
@@ -112,8 +114,6 @@ namespace WpfTwainAdvancedDemo
         /// <summary>
         /// Status of uploading process is changed.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void _ftpUpload_StatusChanged(object sender, Vintasoft.WpfTwain.ImageUploading.Ftp.StatusChangedEventArgs e)
         {
             ftpStatusLabel.Content = e.StatusString;
@@ -122,8 +122,6 @@ namespace WpfTwainAdvancedDemo
         /// <summary>
         /// Progress of uploading process is changed.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void _ftpUpload_ProgressChanged(object sender, Vintasoft.WpfTwain.ImageUploading.Ftp.ProgressChangedEventArgs e)
         {
             ftpUploadProgressBar.Value = e.BytesUploaded;
@@ -134,8 +132,6 @@ namespace WpfTwainAdvancedDemo
         /// <summary>
         /// Uploading process is completed.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void _ftpUpload_Completed(object sender, Vintasoft.WpfTwain.ImageUploading.Ftp.CompletedEventArgs e)
         {
             ftpStatusLabel.Content = "";
@@ -157,8 +153,6 @@ namespace WpfTwainAdvancedDemo
         /// <summary>
         /// Start image uploading process to FTP server.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void httpUploadButton_Click(object sender, RoutedEventArgs e)
         {
             MainWindow mainWindow = Owner as MainWindow;
@@ -199,8 +193,6 @@ namespace WpfTwainAdvancedDemo
         /// <summary>
         /// Cancel image uploading process.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void httpUploadCancelButton_Click(object sender, RoutedEventArgs e)
         {
             _httpUpload.Abort();
@@ -209,8 +201,6 @@ namespace WpfTwainAdvancedDemo
         /// <summary>
         /// Status of uploading process is changed.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void _httpUpload_StatusChanged(object sender, Vintasoft.WpfTwain.ImageUploading.Http.StatusChangedEventArgs e)
         {
             httpStatusLabel.Content = e.StatusString;
@@ -219,8 +209,6 @@ namespace WpfTwainAdvancedDemo
         /// <summary>
         /// Progress of uploading process is changed.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void _httpUpload_ProgressChanged(object sender, Vintasoft.WpfTwain.ImageUploading.Http.ProgressChangedEventArgs e)
         {
             httpUploadProgressBar.Value = e.BytesUploaded;
@@ -231,8 +219,6 @@ namespace WpfTwainAdvancedDemo
         /// <summary>
         /// Uploading process is completed.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void _httpUpload_Completed(object sender, Vintasoft.WpfTwain.ImageUploading.Http.CompletedEventArgs e)
         {
             httpStatusLabel.Content = "";
@@ -243,6 +229,10 @@ namespace WpfTwainAdvancedDemo
                 {
                     MessageBox.Show("HTTP: Image is uploaded successfully!", "HTTP");
                     MessageBox.Show("Response content: " + Environment.NewLine + e.ResponseContent, "HTTP");
+                }
+                else if (e.ResponseCode == HttpStatusCode.NoContent)
+                {
+                    MessageBox.Show("HTTP: Image is uploaded successfully!", "HTTP");
                 }
                 else
                 {
@@ -267,8 +257,6 @@ namespace WpfTwainAdvancedDemo
         /// <summary>
         /// Exit the window.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void exitButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;

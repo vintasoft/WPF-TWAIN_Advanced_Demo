@@ -69,7 +69,7 @@ namespace WpfTwainAdvancedDemo
                 else if ((bool)rbComprJpeg.IsChecked)
                 {
                     _encoderSettings.PdfImageCompression = PdfImageCompression.JPEG;
-                    _encoderSettings.JpegQuality = jpegQualityNumericUpDown.Value;
+                    _encoderSettings.JpegQuality = (int)jpegQualityNumericUpDown.Value;
                 }
                 else if ((bool)rbComprZip.IsChecked)
                     _encoderSettings.PdfImageCompression = PdfImageCompression.ZIP;

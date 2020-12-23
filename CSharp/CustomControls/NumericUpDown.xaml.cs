@@ -1,4 +1,8 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace CustomControls
 {
@@ -9,13 +13,16 @@ namespace CustomControls
     /// <remarks>
     /// Equivalent of <see cref="System.Windows.Forms.NumericUpDown"/> class.
     /// </remarks>
-    public partial class NumericUpDown : System.Windows.Controls.UserControl
+    public partial class NumericUpDown : UserControl
     {
 
         #region Fields
 
+        /// <summary>
+        /// Indicates whether the text in the text box should be updated.
+        /// </summary>
         bool _updateText = false;
-        
+
         #endregion
 
 
@@ -28,13 +35,13 @@ namespace CustomControls
         public NumericUpDown()
         {
             InitializeComponent();
-            
-            _value = _minimum;
-            
+
+            Value = _minimum;
+
             UpdateText();
 
-            valueText.TextChanged += new System.Windows.Controls.TextChangedEventHandler(valueText_TextChanged);
-            valueText.LostFocus += new System.Windows.RoutedEventHandler(valueText_LostFocus);
+            valueText.TextChanged += new TextChangedEventHandler(valueText_TextChanged);
+            valueText.LostFocus += new RoutedEventHandler(valueText_LostFocus);
         }
 
         #endregion
@@ -43,11 +50,31 @@ namespace CustomControls
 
         #region Properties
 
-        private int _maximum = 100;
+        double _increment = 1;
+        /// <summary>
+        /// Gets or sets the value to increment or decrement the spin box (also known as an 
+        /// up-down control) when the up or down buttons are clicked.
+        /// </summary>
+        /// <value>
+        /// The default value is 1.
+        /// </value>
+        public double Increment
+        {
+            get
+            {
+                return _increment;
+            }
+            set
+            {
+                _increment = value;
+            }
+        }
+
+        double _maximum = 100;
         /// <summary>
         /// Gets or set the maximum value.
         /// </summary>
-        public int Maximum
+        public double Maximum
         {
             get
             {
@@ -60,19 +87,19 @@ namespace CustomControls
                     if (value < _minimum)
                         value = _minimum;
                     _maximum = value;
-                    if (_value > _maximum)
+                    if (Value > _maximum)
                         Value = _maximum;
                     else
                         UpdateUpDownButtonsEnabled();
                 }
             }
-        }        
+        }
 
-        private int _minimum = 0;
+        double _minimum = 0;
         /// <summary>
         /// Gets or set the min value.
         /// </summary>
-        public int Minimum
+        public double Minimum
         {
             get
             {
@@ -85,7 +112,7 @@ namespace CustomControls
                     if (value > _maximum)
                         value = _maximum;
                     _minimum = value;
-                    if (_value < _minimum)
+                    if (Value < _minimum)
                         Value = _minimum;
                     else
                         UpdateUpDownButtonsEnabled();
@@ -93,25 +120,63 @@ namespace CustomControls
             }
         }
 
-        private int _value;
+        /// <summary>
+        /// Identifies the <see cref="Value"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty ValueProperty =
+           DependencyProperty.Register("Value", typeof(double), typeof(NumericUpDown),
+           new FrameworkPropertyMetadata(
+               (double)0,
+               FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+               new PropertyChangedCallback(ValuePropertyChanged),
+               new CoerceValueCallback(ValuePropertyCoerceValue)));
+
+
+        private static void ValuePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            NumericUpDown numUpDown = (NumericUpDown)d;
+            numUpDown.UpdateText();
+            numUpDown.UpdateUpDownButtonsEnabled();
+            numUpDown.OnValueChanged(EventArgs.Empty);
+        }
+
+        private static object ValuePropertyCoerceValue(DependencyObject d, object baseValue)
+        {
+            NumericUpDown numUpDown = (NumericUpDown)d;
+            return Math.Max(numUpDown.Minimum, Math.Min((double)baseValue, numUpDown.Maximum));
+        }
+
         /// <summary>
         /// Gets or sets the value assigned to the control.
         /// </summary>
-        public int Value
+        [DefaultValue((double)0)]
+        public double Value
         {
-            get { return _value; }
+            get
+            {
+                return (double)GetValue(ValueProperty);
+            }
             set
             {
-                if (value != _value)
-                {
-                    if (Minimum <= value && value <= Maximum)
-                    {
-                        _value = value;
-                        UpdateText();
-                        UpdateUpDownButtonsEnabled();
-                        OnValueChanged(EventArgs.Empty);
-                    }
-                }
+                SetValue(ValueProperty, value);
+            }
+        }
+
+        int _decimalPlaces = 0;
+        /// <summary>
+        /// Gets or sets the number of decimal places.
+        /// </summary>
+        [Description("The number of decimal places.")]
+        [DefaultValue(0)]
+        public int DecimalPlaces
+        {
+            get
+            {
+                return _decimalPlaces;
+            }
+            set
+            {
+                _decimalPlaces = value;
             }
         }
 
@@ -127,11 +192,8 @@ namespace CustomControls
         /// <param name="args">An EventArgs that contains the event data.</param>
         protected virtual void OnValueChanged(EventArgs args)
         {
-            EventHandler<EventArgs> handler = ValueChanged;
-            if (handler != null)
-            {
-                handler(this, args);
-            }
+            if (ValueChanged != null)
+                ValueChanged(this, args);
         }
 
         /// <summary>
@@ -139,21 +201,8 @@ namespace CustomControls
         /// </summary>
         private void UpdateUpDownButtonsEnabled()
         {
-            if (_value == _minimum)
-            {
-                downButton.IsEnabled = false;
-            }
-            else if (_value == _maximum)
-            {
-                upButton.IsEnabled = false;
-            }
-            else
-            {
-                if (upButton.IsEnabled == false)
-                    upButton.IsEnabled = true;
-                if (downButton.IsEnabled == false)
-                    downButton.IsEnabled = true;
-            }
+            downButton.IsEnabled = Value > _minimum;
+            upButton.IsEnabled = Value < _maximum;
         }
 
         /// <summary>
@@ -163,7 +212,7 @@ namespace CustomControls
         {
             if (Value < Maximum)
             {
-                Value++;
+                Value += Increment;
             }
         }
 
@@ -174,7 +223,7 @@ namespace CustomControls
         {
             if (Value > Minimum)
             {
-                Value--;
+                Value -= Increment;
             }
         }
 
@@ -184,27 +233,27 @@ namespace CustomControls
         private void UpdateText()
         {
             _updateText = true;
-            valueText.Text = Value.ToString();
+            valueText.Text = Math.Round(Value, DecimalPlaces).ToString(CultureInfo.InvariantCulture);
             _updateText = false;
         }
 
         /// <summary>
         /// valueText.TextChanged event handler.
         /// </summary>
-        private void valueText_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        private void valueText_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (_updateText)
                 return;
             if (valueText.Text == "" || valueText.Text == "-")
                 return;
-            int value;
-            if (int.TryParse(valueText.Text, out value))
+            double value;
+            if (double.TryParse(valueText.Text, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out value))
             {
                 if (value >= Minimum && value <= Maximum)
                 {
-                    _value = value;
-                    if (_value != value)
-                        SetValueTextInternal(_value);
+                    Value = value;
+                    if (Value != value)
+                        SetValueTextInternal(Value);
                     UpdateUpDownButtonsEnabled();
                     OnValueChanged(EventArgs.Empty);
                 }
@@ -214,35 +263,39 @@ namespace CustomControls
         /// <summary>
         /// valueText.LostFocus event handler.
         /// </summary>
-        private void valueText_LostFocus(object sender, System.Windows.RoutedEventArgs e)
+        private void valueText_LostFocus(object sender, RoutedEventArgs e)
         {
-            int value;
-            if (int.TryParse(valueText.Text, out value))
+            double value;
+            if (double.TryParse(
+                valueText.Text,
+                NumberStyles.AllowLeadingWhite | NumberStyles.AllowLeadingSign | NumberStyles.AllowTrailingSign,
+                CultureInfo.InvariantCulture,
+                out value))
             {
-                if (_value != value)
+                if (Value != value)
                 {
                     if (value > Maximum)
                         value = Maximum;
-                    else if (_value < Minimum)
+                    else if (value < Minimum)
                         value = Minimum;
-                    _value = value;
-                    SetValueTextInternal(_value);
+                    Value = value;
+                    SetValueTextInternal(Value);
                     UpdateUpDownButtonsEnabled();
                     OnValueChanged(EventArgs.Empty);
                 }
             }
             else
             {
-                SetValueTextInternal(_value);
+                SetValueTextInternal(Value);
             }
         }
 
         /// <summary>
         /// Sets a value in the TextBox.
         /// </summary>
-        private void SetValueTextInternal(int value)
-        {            
-            valueText.Text = value.ToString();
+        private void SetValueTextInternal(double value)
+        {
+            valueText.Text = value.ToString(CultureInfo.InvariantCulture);
             valueText.CaretIndex = valueText.Text.Length;
         }
 

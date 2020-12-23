@@ -41,7 +41,7 @@ namespace WpfTwainAdvancedDemo
         {
             try
             {
-                _encoderSettings.JpegQuality = nJpegQuality.Value;
+                _encoderSettings.JpegQuality = (int)nJpegQuality.Value;
                 DialogResult = true;
             }
             catch (Exception ex)

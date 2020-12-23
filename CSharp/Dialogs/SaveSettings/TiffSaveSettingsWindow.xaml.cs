@@ -88,7 +88,7 @@ namespace WpfTwainAdvancedDemo
                 else if ((bool)comprJpegRadioButton.IsChecked)
                 {
                     _encoderSettings.TiffCompression = TiffCompression.JPEG;
-                    _encoderSettings.JpegQuality = jpegQualityNumericUpDown.Value;
+                    _encoderSettings.JpegQuality = (int)jpegQualityNumericUpDown.Value;
                 }
                 else if ((bool)comprZipRadioButton.IsChecked)
                     _encoderSettings.TiffCompression = TiffCompression.ZIP;
@@ -99,8 +99,8 @@ namespace WpfTwainAdvancedDemo
                     _encoderSettings.UseTiles = false;
                 else
                     _encoderSettings.UseTiles = true;
-                _encoderSettings.RowsPerStrip = rowsPerStripNumericUpDown.Value;
-                _encoderSettings.TileSize = tileSizeNumericUpDown.Value;
+                _encoderSettings.RowsPerStrip = (int)rowsPerStripNumericUpDown.Value;
+                _encoderSettings.TileSize = (int)tileSizeNumericUpDown.Value;
 
                 DialogResult = true;
             }
