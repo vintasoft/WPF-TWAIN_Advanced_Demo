@@ -274,9 +274,6 @@ namespace WpfTwainAdvancedDemo
                 case ".bmp":
                     return new TwainBmpEncoderSettings();
 
-                case ".gif":
-                    return new TwainGifEncoderSettings();
-
                 case ".pdf":
                     return new TwainPdfEncoderSettings();
 

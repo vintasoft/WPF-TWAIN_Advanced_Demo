@@ -66,8 +66,8 @@ namespace WpfTwainAdvancedDemo
             this.Title = string.Format("VintaSoft WPF TWAIN Advanced Demo v{0}", TwainGlobalSettings.ProductVersion);
 
             _saveFileDialog1.FileName = "doc1";
-            _saveFileDialog1.Filter = "BMP image|*.bmp|GIF image|*.gif|JPEG image|*.jpg|PNG image|*.png|TIFF image|*.tif|PDF document|*.pdf";
-            _saveFileDialog1.FilterIndex = 3;
+            _saveFileDialog1.Filter = "BMP image|*.bmp|JPEG image|*.jpg|PNG image|*.png|TIFF image|*.tif|PDF document|*.pdf";
+            _saveFileDialog1.FilterIndex = 2;
 
             // get country and language for TWAIN device manager
             CountryCode country;
@@ -848,7 +848,7 @@ namespace WpfTwainAdvancedDemo
 
                     switch (_saveFileDialog1.FilterIndex)
                     {
-                        case 3:	// JPEG
+                        case 2:	// JPEG
                             JpegSaveSettingsWindow jpegSettingsDlg = new JpegSaveSettingsWindow(this);
                             if (!(bool)jpegSettingsDlg.ShowDialog())
                                 return;
@@ -856,7 +856,7 @@ namespace WpfTwainAdvancedDemo
                             encoderSettings = jpegSettingsDlg.EncoderSettings;
                             break;
 
-                        case 5: // TIFF
+                        case 4: // TIFF
                             TiffSaveSettingsWindow tiffSettingsDlg = new TiffSaveSettingsWindow(this, isFileExist);
                             if (!(bool)tiffSettingsDlg.ShowDialog())
                                 return;
@@ -865,7 +865,7 @@ namespace WpfTwainAdvancedDemo
                             encoderSettings = tiffSettingsDlg.EncoderSettings;
                             break;
 
-                        case 6: // PDF
+                        case 5: // PDF
                             PdfSaveSettingsWindow pdfSettingsDlg = new PdfSaveSettingsWindow(this, isFileExist);
                             if (!(bool)pdfSettingsDlg.ShowDialog())
                                 return;
@@ -885,9 +885,9 @@ namespace WpfTwainAdvancedDemo
                         _images[0].Save(filename, encoderSettings);
 
                         // enable multipage support if necessary
-                        if (_saveFileDialog1.FilterIndex == 5)
+                        if (_saveFileDialog1.FilterIndex == 4)
                             ((TwainTiffEncoderSettings)encoderSettings).TiffMultiPage = true;
-                        else if (_saveFileDialog1.FilterIndex == 6)
+                        else if (_saveFileDialog1.FilterIndex == 5)
                             ((TwainPdfEncoderSettings)encoderSettings).PdfMultiPage = true;
 
                         // save second and next images
