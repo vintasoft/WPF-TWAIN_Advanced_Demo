@@ -4,7 +4,7 @@ This WinForms project uses <a href="https://www.vintasoft.com/vstwain-dotnet-ind
 
 
 ## Screenshot
-<img src="vintasoft-wpf-twain-advanced-demo.png" alt="VintaSoft WPF TWAIN Advanced Demo">
+<img src="vintasoft-wpf-twain-advanced-demo.png" title="VintaSoft WPF TWAIN Advanced Demo">
 
 
 ## Usage
