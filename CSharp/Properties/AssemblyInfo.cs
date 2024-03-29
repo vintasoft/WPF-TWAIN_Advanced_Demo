@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("VintaSoft Ltd.")]
 [assembly: AssemblyProduct("WpfTwainAdvancedDemo")]
-[assembly: AssemblyCopyright("Copyright VintaSoft Ltd. 2023")]
+[assembly: AssemblyCopyright("Copyright VintaSoft Ltd. 2024")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
