@@ -77,59 +77,10 @@
                     <Label VerticalAlignment="Center">
                         URL:
                     </Label>
-                    <Label Grid.Row="3" VerticalAlignment="Top">
-                       Status: 
-                    </Label>
-                    <Label Name="httpStatusLabel" VerticalAlignment="Stretch" VerticalContentAlignment="Top" Grid.Row="3" Grid.Column="1" Height="50" />
-                    <TextBox Name="httpUrlTextBox" Grid.Column="1" VerticalAlignment="Stretch" VerticalContentAlignment="Center" >
-                        https://demos.vintasoft.com/AspNetMvcTwainScanningDemo/api/ImageUploadApi
-                    </TextBox>
-                    <GroupBox Header="Web form parameters" Grid.Row="1" Grid.ColumnSpan="2" Margin="2,2,2,38.433" Grid.RowSpan="2">
-                        <Grid Margin="2">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="70"/>
-                                <ColumnDefinition MinWidth="80" Width="80*"/>
-                                <ColumnDefinition Width="40"/>
-                                <ColumnDefinition MinWidth="80" Width="80*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <Label>
-                                File field:
-                            </Label>
-                            <Label Grid.Row="1">
-                                Text field 1:
-                            </Label>
-                            <Label Grid.Row="2">
-                                Text field 2:
-                            </Label>
-                            <Label Grid.Column="2" HorizontalContentAlignment="Right">
-                                Value:
-                            </Label>
-                            <Label Grid.Column="2" Grid.Row="1" HorizontalContentAlignment="Right">
-                                Value:
-                            </Label>
-                            <Label Grid.Column="2" Grid.Row="2" HorizontalContentAlignment="Right">
-                                Value:
-                            </Label>
-                            <TextBox Name="httpFileFieldTextBox" Grid.Column="1">file</TextBox>
-                            <TextBox Name="httpFileFieldValueTextBox" Grid.Column="3" >demo.jpg</TextBox>
-                            <TextBox Name="httpTextField1TextBox" Grid.Column="1" Grid.Row="1"/>
-                            <TextBox Name="httpTextField1ValueTextBox" Grid.Column="3" Grid.Row="1"/>
-                            <TextBox Name="httpTextField2TextBox" Grid.Column="1" Grid.Row="2"/>
-                            <TextBox Name="httpTextField2ValueTextBox" Grid.Column="3" Grid.Row="2"/>
-                        </Grid>
-                    </GroupBox>
-                    <ProgressBar Name="httpUploadProgressBar" Grid.Row="2" Grid.ColumnSpan="2" Height="23" Margin="4,0,0,5.489" VerticalAlignment="Bottom" />
+                    <TextBox x:Name="httpUrlTextBox" Grid.Column="1" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Text="https://demos.vintasoft.com/AspNetCoreTwainScanningDemo/api/ImageUploadApi" />
                     <StackPanel Margin="2" Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" Height="23">
                         <Button Name="httpUploadButton" Margin="0,0,5,0" Width="70" Click="httpUploadButton_Click">
                             Upload
-                        </Button>
-                        <Button Name="httpUploadCancelButton" Margin="5,0,0,0" Width="70" Click="httpUploadCancelButton_Click" IsEnabled="False" >
-                            Cancel
                         </Button>
                     </StackPanel>
                 </Grid>

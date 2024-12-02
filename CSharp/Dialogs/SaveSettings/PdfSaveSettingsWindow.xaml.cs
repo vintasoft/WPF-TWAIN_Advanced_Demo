@@ -61,20 +61,20 @@ namespace WpfTwainAdvancedDemo
                 _encoderSettings.PdfDocumentInfo.Title = txtPdfTitle.Text;
 
                 if ((bool)rbComprNone.IsChecked)
-                    _encoderSettings.PdfImageCompression = PdfImageCompression.None;
+                    _encoderSettings.PdfImageCompression = TwainPdfImageCompression.None;
                 else if ((bool)rbComprCCITT.IsChecked)
-                    _encoderSettings.PdfImageCompression = PdfImageCompression.CcittFax;
+                    _encoderSettings.PdfImageCompression = TwainPdfImageCompression.CcittFax;
                 else if ((bool)rbComprLzw.IsChecked)
-                    _encoderSettings.PdfImageCompression = PdfImageCompression.LZW;
+                    _encoderSettings.PdfImageCompression = TwainPdfImageCompression.LZW;
                 else if ((bool)rbComprJpeg.IsChecked)
                 {
-                    _encoderSettings.PdfImageCompression = PdfImageCompression.JPEG;
+                    _encoderSettings.PdfImageCompression = TwainPdfImageCompression.JPEG;
                     _encoderSettings.JpegQuality = (int)jpegQualityNumericUpDown.Value;
                 }
                 else if ((bool)rbComprZip.IsChecked)
-                    _encoderSettings.PdfImageCompression = PdfImageCompression.ZIP;
+                    _encoderSettings.PdfImageCompression = TwainPdfImageCompression.ZIP;
                 else if ((bool)rbComprAuto.IsChecked)
-                    _encoderSettings.PdfImageCompression = PdfImageCompression.Auto;
+                    _encoderSettings.PdfImageCompression = TwainPdfImageCompression.Auto;
 
                 DialogResult = true;
             }

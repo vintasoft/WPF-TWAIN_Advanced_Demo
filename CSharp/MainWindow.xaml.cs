@@ -96,27 +96,36 @@ namespace WpfTwainAdvancedDemo
         /// </summary>
         private void openDeviceManagerButton_Click(object sender, RoutedEventArgs e)
         {
-            // clear list of devices
+            // clear list of TWAIN devices
             devicesComboBox.Items.Clear();
 
-            // if device manager is opened
+            // if TWAIN device manager is opened
             if (_deviceManager.State == DeviceManagerState.Opened)
             {
-                // close the device manager
+                // close the TWAIN device manager
                 _deviceManager.Close();
 
                 // change text on this button
                 openDeviceManagerButton.Content = "Open device manager";
             }
 
-            // if device manager is closed
+            // if TWAIN device manager is closed
             else
             {
                 try
                 {
-                    // try to find the device manager specified by user
+                    // if TWAIN device manager 2.x must be used
                     if (twain2CompatibleCheckBox.IsChecked == true)
+                    {
+                        // get path to the TWAIN device manager 2.x from installation of VintaSoft TWAIN .NET SDK
+                        string twainDsmDllCustomPath = GetTwainDsmCustomPath(IntPtr.Size == 4);
+                        // if file exist
+                        if (twainDsmDllCustomPath != null)
+                            // specify that SDK should use TWAIN device manager 2.x from installation of VintaSoft TWAIN .NET SDK
+                            _deviceManager.TwainDllPath = twainDsmDllCustomPath;
+
                         _deviceManager.IsTwain2Compatible = true;
+                    }
                     else
                         _deviceManager.IsTwain2Compatible = false;
                 }
@@ -131,9 +140,9 @@ namespace WpfTwainAdvancedDemo
                     return;
                 }
 
-                // device manager is found
+                // TWAIN device manager is found
 
-                // if 64-bit TWAIN2 device manager is used
+                // if TWAIN device manager 2.x (64-bit) is used
                 if (IntPtr.Size == 8 && _deviceManager.IsTwain2Compatible)
                 {
                     if (!InitTwain2DeviceManagerMode())
@@ -142,12 +151,12 @@ namespace WpfTwainAdvancedDemo
 
                 try
                 {
-                    // open the device manager
+                    // open the TWAIN device manager
                     _deviceManager.Open();
                 }
                 catch (TwainDeviceManagerException ex)
                 {
-                    // close the device manager
+                    // close the TWAIN device manager
                     _deviceManager.Close();
 
                     // show dialog with error message
@@ -160,15 +169,15 @@ namespace WpfTwainAdvancedDemo
                 }
 
                 DeviceCollection devices = _deviceManager.Devices;
-                // for each available device
+                // for each available TWAIN device
                 for (int i = 0; i < devices.Count; i++)
                 {
-                    // add the device name to a combo box
+                    // add the TWAIN device name to a combo box
                     devicesComboBox.Items.Add(devices[i].Info.ProductName);
 
-                    // if device is default device
+                    // if TWAIN device is default device
                     if (devices[i] == _deviceManager.DefaultDevice)
-                        // select device in a combo box
+                        // select TWAIN device in a combo box
                         devicesComboBox.SelectedIndex = i;
                 }
 
@@ -194,6 +203,13 @@ namespace WpfTwainAdvancedDemo
             // show dialog
             if (window.ShowDialog() == true)
             {
+                // get path to the TWAIN device manager 2.x from installation of VintaSoft TWAIN .NET SDK
+                string twainDsmDllCustomPath = GetTwainDsmCustomPath(window.Use32BitDevices);
+                // if file exist
+                if (twainDsmDllCustomPath != null)
+                    // specify that SDK should use TWAIN device manager 2.x from installation of VintaSoft TWAIN .NET SDK
+                    _deviceManager.TwainDllPath = twainDsmDllCustomPath;
+
                 // if device manager mode is changed
                 if (window.Use32BitDevices != _deviceManager.Are32BitDevicesUsed)
                 {
@@ -821,7 +837,7 @@ namespace WpfTwainAdvancedDemo
         /// <summary>
         /// Shows information about progress of image processing function.
         /// </summary>
-        private void currentImage_ImageProcessingProgress(object sender, AcquiredImageProcessingProgressEventArgs e)
+        private void currentImage_ImageProcessingProgress(object sender, TwainAcquiredImageProcessingProgressEventArgs e)
         {
             imageAcquisitionProgressBar.Value = (int)e.Progress;
             if (imageAcquisitionProgressBar.Value == 100)
@@ -1125,6 +1141,41 @@ namespace WpfTwainAdvancedDemo
             pi.CreateNoWindow = true;
             pi.WindowStyle = ProcessWindowStyle.Hidden;
             Process.Start(pi);
+        }
+
+        /// <summary>
+        /// Returns path to the TWAIN device manager 2.x from installation of VintaSoft TWAIN .NET SDK.
+        /// </summary>
+        /// <param name="use32BitDevice">The value indicating whether the 32-bit TWAIN device must be used.</param>
+        /// <returns>The path to the TWAIN device manager 2.x from installation of VintaSoft TWAIN .NET SDK.</returns>
+        private string GetTwainDsmCustomPath(bool use32BitDevice)
+        {
+            string twainFolderName = "TWAINDSM64";
+            if (use32BitDevice)
+                twainFolderName = "TWAINDSM32";
+
+            string[] binFolderPaths = { @"..\..\Bin", @"..\..\..\..\..\Bin", @"..\..\..\..\..\..\Bin" };
+            string binFolderPath = null;
+            for (int i = 0; i < binFolderPaths.Length; i++)
+            {
+                if (Directory.Exists(Path.Combine(binFolderPaths[i], twainFolderName)))
+                {
+                    binFolderPath = binFolderPaths[i];
+                    break;
+                }
+            }
+
+            if (binFolderPath != null)
+            {
+                if (use32BitDevice)
+                    // get path to the TWAIN device manager 2.x (32-bit) from installation of VintaSoft TWAIN .NET SDK
+                    return Path.Combine(binFolderPath, "TWAINDSM32", "TWAINDSM.DLL");
+                else
+                    // get path to the TWAIN device manager 2.x (64-bit) from installation of VintaSoft TWAIN .NET SDK
+                    return Path.Combine(binFolderPath, "TWAINDSM64", "TWAINDSM.DLL");
+            }
+
+            return null;
         }
 
         #endregion

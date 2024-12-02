@@ -6,6 +6,7 @@ using Vintasoft.WpfTwain;
 using Vintasoft.WpfTwain.ImageEncoders;
 using Vintasoft.WpfTwain.ImageUploading.Ftp;
 using Vintasoft.WpfTwain.ImageUploading.Http;
+using System.Text;
 
 namespace WpfTwainAdvancedDemo
 {
@@ -155,98 +156,46 @@ namespace WpfTwainAdvancedDemo
         /// </summary>
         private void httpUploadButton_Click(object sender, RoutedEventArgs e)
         {
-            MainWindow mainWindow = Owner as MainWindow;
-            httpUploadButton.IsEnabled = false;
-            httpUploadCancelButton.IsEnabled = true;
-            httpUploadProgressBar.Value = 0;
+#if DOTNET_3_5
+            MessageBox.Show("Not supported in .NET Framework 3.5", "HTTP error");
+#else
+            string url = httpUrlTextBox.Text;
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
 
-            System.Net.ServicePointManager.Expect100Continue = false;
+            string fileName = "test.jpg";
+            string acquiredImageAsBase64String = _acquiredImageToUpload.GetAsBase64String(GetImageFileFormat(fileName));
+
+            string postData = string.Format("fileName={0}", fileName);
+            postData += string.Format("&imageFileAsBase64String={0}", WebUtility.UrlEncode(acquiredImageAsBase64String));
+            byte[] data = Encoding.ASCII.GetBytes(postData);
+
+            request.Method = "POST";
+            request.ContentType = "application/x-www-form-urlencoded";
+            request.ContentLength = data.Length;
+
+            using (Stream stream = request.GetRequestStream())
+            {
+                stream.Write(data, 0, data.Length);
+            }
 
             try
             {
-                _httpUpload = new HttpUpload(this);
-                _httpUpload.StatusChanged += new EventHandler<Vintasoft.WpfTwain.ImageUploading.Http.StatusChangedEventArgs>(_httpUpload_StatusChanged);
-                _httpUpload.ProgressChanged += new EventHandler<Vintasoft.WpfTwain.ImageUploading.Http.ProgressChangedEventArgs>(_httpUpload_ProgressChanged);
-                _httpUpload.Completed += new EventHandler<Vintasoft.WpfTwain.ImageUploading.Http.CompletedEventArgs>(_httpUpload_Completed);
-
-                _httpUpload.Url = httpUrlTextBox.Text;
-                _httpUpload.Timeout = 5000;
-                _httpUpload.UseDefaultCredentials = true;
-                _httpUpload.AddTextField(httpTextField1TextBox.Text, httpTextField1ValueTextBox.Text);
-                _httpUpload.AddTextField(httpTextField2TextBox.Text, httpTextField2ValueTextBox.Text);
-                _httpUpload.AddFileField(httpFileFieldTextBox.Text, httpFileFieldValueTextBox.Text, _acquiredImageToUpload.GetAsStream(GetImageFileFormat(httpFileFieldValueTextBox.Text)));
-
-                _httpUpload.PostData();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "HTTP error", MessageBoxButton.OK, MessageBoxImage.Error);
-                httpUploadButton.IsEnabled = true;
-                httpUploadCancelButton.IsEnabled = false;
-            }
-            finally
-            {
-                httpUploadProgressBar.Maximum = _httpUpload.BytesTotal;
-            }
-        }
-
-        /// <summary>
-        /// Cancel image uploading process.
-        /// </summary>
-        private void httpUploadCancelButton_Click(object sender, RoutedEventArgs e)
-        {
-            _httpUpload.Abort();
-        }
-
-        /// <summary>
-        /// Status of uploading process is changed.
-        /// </summary>
-        private void _httpUpload_StatusChanged(object sender, Vintasoft.WpfTwain.ImageUploading.Http.StatusChangedEventArgs e)
-        {
-            httpStatusLabel.Content = e.StatusString;
-        }
-
-        /// <summary>
-        /// Progress of uploading process is changed.
-        /// </summary>
-        private void _httpUpload_ProgressChanged(object sender, Vintasoft.WpfTwain.ImageUploading.Http.ProgressChangedEventArgs e)
-        {
-            httpUploadProgressBar.Value = e.BytesUploaded;
-            if (e.StatusCode == Vintasoft.WpfTwain.ImageUploading.Http.StatusCode.Sending)
-                httpStatusLabel.Content = string.Format("{0}{3} Uploaded {1}  bytes from {2} bytes", e.StatusString, e.BytesUploaded, e.BytesTotal, Environment.NewLine);
-        }
-
-        /// <summary>
-        /// Uploading process is completed.
-        /// </summary>
-        private void _httpUpload_Completed(object sender, Vintasoft.WpfTwain.ImageUploading.Http.CompletedEventArgs e)
-        {
-            httpStatusLabel.Content = "";
-
-            if (e.ErrorCode == 0)
-            {
-                if (e.ResponseCode == HttpStatusCode.OK)
-                {
-                    MessageBox.Show("HTTP: Image is uploaded successfully!", "HTTP");
-                    MessageBox.Show("Response content: " + Environment.NewLine + e.ResponseContent, "HTTP");
-                }
-                else if (e.ResponseCode == HttpStatusCode.NoContent)
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                if (response.StatusCode == HttpStatusCode.OK)
                 {
                     MessageBox.Show("HTTP: Image is uploaded successfully!", "HTTP");
                 }
                 else
                 {
-                    MessageBox.Show("Response code: " + e.ResponseCode, "HTTP");
-                    MessageBox.Show("Response string: " + e.ResponseString, "HTTP");
+                    string responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                    MessageBox.Show(responseString, "HTTP error");
                 }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show(e.ErrorString, "HTTP error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.Message, "HTTP error");
             }
-
-            httpUploadButton.IsEnabled = true;
-            httpUploadCancelButton.IsEnabled = false;
+#endif
         }
 
         #endregion

@@ -80,20 +80,20 @@ namespace WpfTwainAdvancedDemo
                 _encoderSettings.TiffMultiPage = (bool)addToDocumentRadioButton.IsChecked;
 
                 if ((bool)comprNoneRadioButton.IsChecked)
-                    _encoderSettings.TiffCompression = TiffCompression.None;
+                    _encoderSettings.TiffCompression = TwainTiffCompression.None;
                 else if ((bool)comprCcittRadioButton.IsChecked)
-                    _encoderSettings.TiffCompression = TiffCompression.CCITGroup4;
+                    _encoderSettings.TiffCompression = TwainTiffCompression.CCITGroup4;
                 else if ((bool)comprLzwRadioButton.IsChecked)
-                    _encoderSettings.TiffCompression = TiffCompression.LZW;
+                    _encoderSettings.TiffCompression = TwainTiffCompression.LZW;
                 else if ((bool)comprJpegRadioButton.IsChecked)
                 {
-                    _encoderSettings.TiffCompression = TiffCompression.JPEG;
+                    _encoderSettings.TiffCompression = TwainTiffCompression.JPEG;
                     _encoderSettings.JpegQuality = (int)jpegQualityNumericUpDown.Value;
                 }
                 else if ((bool)comprZipRadioButton.IsChecked)
-                    _encoderSettings.TiffCompression = TiffCompression.ZIP;
+                    _encoderSettings.TiffCompression = TwainTiffCompression.ZIP;
                 else if ((bool)comprAutoRadioButton.IsChecked)
-                    _encoderSettings.TiffCompression = TiffCompression.Auto;
+                    _encoderSettings.TiffCompression = TwainTiffCompression.Auto;
 
                 if (useStripsRadioButton.IsChecked == true)
                     _encoderSettings.UseTiles = false;
