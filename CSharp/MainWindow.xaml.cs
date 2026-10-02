@@ -61,6 +61,9 @@ namespace WpfTwainAdvancedDemo
 
         public MainWindow()
         {
+            // register the evaluation license for VintaSoft Twain .NET SDK
+            Vintasoft.WpfTwain.TwainGlobalSettings.Register("REG_USER", "REG_EMAIL", "EXPIRATION_DATE", "REG_CODE");
+
             InitializeComponent();
 
             this.Title = string.Format("VintaSoft WPF TWAIN Advanced Demo v{0}", TwainEnvironment.ProductVersion);
@@ -1151,7 +1154,7 @@ namespace WpfTwainAdvancedDemo
             if (use32BitDevice)
                 twainFolderName = "TWAINDSM32";
 
-            string[] binFolderPaths = { @"..\..\Bin", @"..\..\..\..\..\Bin", @"..\..\..\..\..\..\Bin" };
+            string[] binFolderPaths = { @"..\..", @"..\..\Bin", @"..\..\..\..\..\Bin", @"..\..\..\..\..\..\Bin" };
             string binFolderPath = null;
             for (int i = 0; i < binFolderPaths.Length; i++)
             {
